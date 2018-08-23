@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import inspect
 import sys
 import logging
 import sqlalchemy as sa
@@ -259,7 +260,7 @@ class SQLAInterface(BaseInterface):
             col = self.get_relation_fk(col_name)
             return col.nullable
         try:
-            return self.list_columns[col_name].nullable
+            return self.is_property(col_name) or self.list_columns[col_name].nullable
         except:
             return False
 
@@ -281,6 +282,12 @@ class SQLAInterface(BaseInterface):
     def is_fk(self, col_name):
         try:
             return self.list_columns[col_name].foreign_keys
+        except:
+            return False
+
+    def is_property(self, col_name):
+        try:
+            return col_name in [x[0] for x in inspect.getmembers(self.obj, lambda p: isinstance(p, property))]
         except:
             return False
 
@@ -408,16 +415,18 @@ class SQLAInterface(BaseInterface):
     """
 
     def get_col_default(self, col_name):
-        default = getattr(self.list_columns[col_name], 'default', None)
-        if default is not None:
-            value = getattr(default, 'arg', None)
-            if value is not None:
-                if getattr(default, 'is_callable', False):
-                    return lambda: default.arg(None)
-                else:
-                    if not getattr(default, 'is_scalar', True):
-                        return None
-                return value
+        column = self.list_columns.get(col_name)
+        if column is not None:
+            default = getattr(self.list_columns[col_name], 'default', None)
+            if default is not None:
+                value = getattr(default, 'arg', None)
+                if value is not None:
+                    if getattr(default, 'is_callable', False):
+                        return lambda: default.arg(None)
+                    else:
+                        if not getattr(default, 'is_scalar', True):
+                            return None
+                    return value
 
     def get_related_model(self, col_name):
         return self.list_properties[col_name].mapper.class_

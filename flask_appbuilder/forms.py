@@ -47,6 +47,7 @@ class FieldConverter(object):
                         ('is_boolean', BooleanField, None),
                         ('is_date', DateField, DatePickerWidget),
                         ('is_datetime', DateTimeField, DateTimePickerWidget),
+                        ('is_property', StringField, BS3TextFieldWidget)
     )
 
     def __init__(self, datamodel, colname, label, description, validators, default=None):
