@@ -1,6 +1,8 @@
 import logging
 
 from flask import Blueprint, url_for, current_app
+
+from .socketio import SocketIOManager
 from .views import IndexView, UtilView
 from .filters import TemplateFilters
 from .menu import Menu
@@ -77,6 +79,8 @@ class AppBuilder(object):
     sm = None
     # Babel Manager Class
     bm = None
+    # SocketIO Manager Class
+    socketio = None
     # dict with addon name has key and intantiated class has value
     addon_managers = None
     # temporary list that hold addon_managers config key
@@ -155,6 +159,7 @@ class AppBuilder(object):
         self.session = session
         self.sm = self.security_manager_class(self)
         self.bm = BabelManager(self)
+        self.socketio = SocketIOManager(self)
         self._add_global_static()
         self._add_global_filters()
         app.before_request(self.sm.before_request)
