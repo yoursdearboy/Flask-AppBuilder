@@ -289,7 +289,7 @@ class SQLAInterface(BaseInterface):
 
     def is_property(self, col_name):
         try:
-            return col_name in [x[0] for x in inspect.getmembers(self.obj, lambda p: isinstance(p, property))]
+            return col_name in self.list_python_properties
         except:
             return False
 
