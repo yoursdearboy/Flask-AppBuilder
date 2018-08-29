@@ -44,6 +44,7 @@ class SQLAInterface(BaseInterface):
         _include_filters(self)
         self.list_columns = dict()
         self.list_properties = dict()
+        self.list_python_properties = dict()
 
         self.session = session
         # Collect all SQLA columns and properties
@@ -53,6 +54,7 @@ class SQLAInterface(BaseInterface):
         for col_name in obj.__mapper__.columns.keys():
             if col_name in self.list_properties:
                 self.list_columns[col_name] = obj.__mapper__.columns[col_name]
+        self.list_python_properties = dict(inspect.getmembers(obj, lambda p: isinstance(p, property)))
         super(SQLAInterface, self).__init__(obj)
 
     @property
